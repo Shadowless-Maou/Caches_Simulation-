@@ -1,0 +1,92 @@
+struct cachesEntry
+{
+	bool LRU;
+	bool invaild;
+	unsigned int Tag;// was unsigned short changed to allow 30 bits 
+	char bytes[4];
+};
+
+#define FULL_Assoctiv_TagHex 0xFFFFFFFC; //11111111111111111111111111111100
+
+
+struct cachesEntry FullyAssociativeMap[cachesize];
+
+void SetAssociate(unsigned int CPUaddress);
+
+
+//function 
+void SetAssociate(unsigned int CPUaddress)
+{
+
+	std::cout << "\n+++++++++++++++++++++++++++++++++++++Address has been read in :: " << hex << CPUaddress  << std::endl;
+	
+
+	unsigned int BytesN = CPUaddress & WordHex;  //char
+	unsigned int Tag = CPUaddress & FULL_Assoctiv_TagHex;     //long
+
+	Tag = Tag >> 2;
+
+
+	//FullyAssociativeMap
+	std::cout << "\nThe resulting address in the form:" << std::endl;
+	std::cout << "BytesN => " << BytesN << std::endl; //testing
+	std::cout << "TAG => " << Tag << std::endl; //testing
+
+	std::cout << "\n=================================================HIT=========MISS======= " << std::endl;
+
+	int flag = 0;
+	int flagHM = 0;
+
+	int invalids_count = 0;
+
+	//chechking for any hit in cache
+	for (int x = 0; x < cachesize; x++) {
+
+		if ((FullyAssociativeMap[x].Tag == Tag) && (FullyAssociativeMap[x].invaild == false))
+		{
+			std::cout << "\nAddress is                                      a Hit  " << std::endl;
+			//HIT++;
+			flagHM = 1;
+			break;
+
+		}
+		else
+		{
+			
+			flag = 0;
+			flagHM = 0;
+
+			//MISS++;
+		}
+
+
+	}
+
+	if (flagHM == 1)
+	{
+		HIT++;
+
+	}
+	else if (flagHM == 0 )
+	{
+		MISS++;
+		for (int x = 0; x < cachesize; x++)//use first non invalid space
+		{
+			if (FullyAssociativeMap[x].invaild == true)
+			{
+
+				std::cout << "\nAddress is                                                   a Miss  " << std::endl;
+				FullyAssociativeMap[x].Tag = Tag;
+				FullyAssociativeMap[x].invaild = false;
+				break;
+			}
+		}
+	}
+
+	std::cout << "\n======================================================================== " << std::endl;
+	std::cout << "\nAmount of hits => " << std::dec << HIT << std::endl;
+	std::cout << "Amount of misses => " << std::dec << MISS << std::endl;
+
+
+}
+
